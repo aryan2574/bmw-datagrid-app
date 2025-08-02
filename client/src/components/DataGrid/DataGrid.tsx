@@ -38,6 +38,10 @@ const DataGrid: React.FC = () => {
     await fetchVehicles();
   };
 
+  const handleRefresh = async () => {
+    await fetchVehicles(pagination.page, pagination.pageSize);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
@@ -57,6 +61,8 @@ const DataGrid: React.FC = () => {
             return newFilters;
           });
         }}
+        onRefresh={handleRefresh}
+        loading={loading}
       />
 
       <VehicleGrid

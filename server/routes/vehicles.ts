@@ -4,7 +4,6 @@ import Vehicle from "../models/Vehicle";
 
 const router = express.Router();
 
-// Get all vehicles with search and filtering
 router.get("/", async (req, res) => {
   try {
     const {
@@ -19,7 +18,6 @@ router.get("/", async (req, res) => {
     const offset = (Number(page) - 1) * Number(limit);
     const whereClause: any = {};
 
-    // Search functionality
     if (search) {
       whereClause[Op.or] = [
         { brand: { [Op.like]: `%${search}%` } },
@@ -32,7 +30,6 @@ router.get("/", async (req, res) => {
       ];
     }
 
-    // Advanced filtering
     if (filter) {
       const filterObj = JSON.parse(filter as string);
       Object.keys(filterObj).forEach((key) => {
@@ -92,7 +89,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get vehicle by ID
 router.get("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);
@@ -106,7 +102,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Create new vehicle
 router.post("/", async (req, res) => {
   try {
     const vehicle = await Vehicle.create(req.body);
@@ -117,7 +112,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update vehicle
 router.put("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);
@@ -132,7 +126,6 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete vehicle
 router.delete("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);

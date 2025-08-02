@@ -1,9 +1,17 @@
 import React from "react";
-import { Box, TextField, Button, Paper, Chip } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Paper,
+  Chip,
+  CircularProgress,
+} from "@mui/material";
 import {
   Upload as UploadIcon,
   Search as SearchIcon,
   FilterList as FilterIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { FilterState } from "../../models/model";
 import { useVehicleData } from "../../hooks/useVehicleData";
@@ -17,6 +25,8 @@ interface SearchAndFilterControlsProps {
   ) => void;
   onAddFilter: () => void;
   onRemoveFilter: (field: string) => void;
+  onRefresh?: () => void;
+  loading?: boolean;
 }
 
 const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
@@ -25,6 +35,8 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
   filters,
   onAddFilter,
   onRemoveFilter,
+  onRefresh,
+  loading = false,
 }) => {
   const { uploadCSV } = useVehicleData();
 
@@ -34,6 +46,12 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
     await uploadCSV(file);
+  };
+
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   return (
@@ -62,6 +80,15 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
         <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
           Upload CSV
           <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
+        </Button>
+
+        <Button
+          variant="outlined"
+          startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
+          onClick={handleRefresh}
+          disabled={loading}
+        >
+          Refresh
         </Button>
       </Box>
 
