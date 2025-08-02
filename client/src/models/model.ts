@@ -29,3 +29,13 @@ export interface FilterData {
   operator: string;
   value: string;
 }
+
+export interface FilterDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onAddFilter: (filter: {
+    field: string;
+    operator: string;
+    value: string;
+  }) => void;
+}

@@ -2,27 +2,47 @@ import React, { useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { ColDef, GridReadyEvent, ICellRendererParams } from "ag-grid-community";
-import { Paper, Box, IconButton, Chip } from "@mui/material";
+import {
+  Paper,
+  Box,
+  IconButton,
+  Chip,
+  Pagination,
+  FormControl,
+  Select,
+  MenuItem,
+  Typography,
+  SelectChangeEvent,
+  CircularProgress,
+} from "@mui/material";
 import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { Vehicle } from "../../models/model";
-import { useVehicleData } from "../../hooks/useVehicleData";
+import { useVehicleData, PaginationState } from "../../hooks/useVehicleData";
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface VehicleGridProps {
   vehicles: Vehicle[];
+  pagination: PaginationState;
+  loading: boolean;
   onViewVehicle: (vehicle: Vehicle) => void;
   onDeleteVehicle: (vehicleId: number) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 const VehicleGrid: React.FC<VehicleGridProps> = ({
   vehicles,
+  pagination,
+  loading,
   onViewVehicle,
   onDeleteVehicle,
+  onPageChange,
+  onPageSizeChange,
 }) => {
   const { deleteVehicle } = useVehicleData();
 
@@ -198,25 +218,99 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
     // Grid API is available but not used in this implementation
   };
 
+  const handlePageSizeChange = (event: SelectChangeEvent<number>) => {
+    const newPageSize = event.target.value as number;
+    onPageSizeChange(newPageSize);
+  };
+
   return (
-    <Paper sx={{ height: 600 }}>
-      <div
-        className="ag-theme-quartz"
-        style={{ height: "100%", width: "100%" }}
+    <Box>
+      <Paper sx={{ height: 600, position: "relative" }}>
+        <div
+          className="ag-theme-quartz"
+          style={{ height: "100%", width: "100%" }}
+        >
+          <AgGridReact
+            columnDefs={columnDefs}
+            rowData={vehicles}
+            onGridReady={handleGridReady}
+            pagination={false} // Disable client-side pagination
+            domLayout="normal"
+            overlayLoadingTemplate="<span class='ag-overlay-loading-center'>Loading electric vehicles...</span>"
+            overlayNoRowsTemplate="<span class='ag-overlay-no-rows-center'>No electric vehicles found</span>"
+          />
+        </div>
+
+        {/* Loading Overlay */}
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+      </Paper>
+
+      {/* Custom Pagination Controls */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 2,
+          p: 2,
+          backgroundColor: "background.paper",
+          borderRadius: 1,
+          boxShadow: 1,
+        }}
       >
-        <AgGridReact
-          columnDefs={columnDefs}
-          rowData={vehicles}
-          onGridReady={handleGridReady}
-          pagination={true}
-          paginationPageSize={20}
-          paginationPageSizeSelector={[10, 20, 50, 100]}
-          domLayout="normal"
-          overlayLoadingTemplate="<span class='ag-overlay-loading-center'>Loading electric vehicles...</span>"
-          overlayNoRowsTemplate="<span class='ag-overlay-no-rows-center'>No electric vehicles found</span>"
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Rows per page:
+          </Typography>
+          <FormControl size="small" sx={{ minWidth: 80 }}>
+            <Select
+              value={pagination.pageSize}
+              onChange={handlePageSizeChange}
+              displayEmpty
+              disabled={loading}
+            >
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="body2" color="text.secondary">
+            {`${(pagination.page - 1) * pagination.pageSize + 1}-${Math.min(
+              pagination.page * pagination.pageSize,
+              pagination.total
+            )} of ${pagination.total}`}
+          </Typography>
+        </Box>
+
+        <Pagination
+          count={pagination.totalPages}
+          page={pagination.page}
+          onChange={(_, page) => onPageChange(page)}
+          color="primary"
+          showFirstButton
+          showLastButton
+          disabled={loading}
         />
-      </div>
-    </Paper>
+      </Box>
+    </Box>
   );
 };
 

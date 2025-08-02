@@ -12,16 +12,7 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-
-interface FilterDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onAddFilter: (filter: {
-    field: string;
-    operator: string;
-    value: string;
-  }) => void;
-}
+import { FilterDialogProps } from "../../models/model";
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   open,

@@ -14,7 +14,11 @@ const DataGrid: React.FC = () => {
     setSearchTerm,
     filters,
     setFilters,
+    pagination,
+    loading,
     fetchVehicles,
+    handlePageChange,
+    handlePageSizeChange,
   } = useVehicleData();
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -57,8 +61,12 @@ const DataGrid: React.FC = () => {
 
       <VehicleGrid
         vehicles={vehicles}
+        pagination={pagination}
+        loading={loading}
         onViewVehicle={handleViewVehicle}
         onDeleteVehicle={handleDeleteVehicle}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
 
       <FilterDialog
