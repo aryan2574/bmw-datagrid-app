@@ -1,24 +1,26 @@
 {
   "development": {
-    "username": process.env.DB_USERNAME,
-    "password": process.env.DB_PASSWORD,
-    "database": process.env.DB_DATABASE,
-    "host": process.env.DB_HOST,
-    "port": process.env.DB_PORT,
+    "username": "root",
+    "password": "password",
+    "database": "bmw_datagrid",
+    "host": "localhost",
+    "port": 3306,
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "password": "password",
+    "database": "bmw_datagrid_test",
+    "host": "localhost",
+    "port": 3306,
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "password": "password",
+    "database": "bmw_datagrid_prod",
+    "host": "localhost",
+    "port": 3306,
     "dialect": "mysql"
   }
 }

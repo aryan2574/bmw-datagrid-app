@@ -1,34 +1,45 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "./App.css";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { AppBar, Toolbar, Typography, Container } from "@mui/material";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+
+import DataGrid from "./components/DataGrid/DataGrid";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#16588E",
+    },
+    secondary: {
+      main: "#E7222E",
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 600,
+    },
+  },
+});
 
 function App() {
-  const API_URL: string | undefined = process.env.REACT_APP_API_BASE_URL;
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchBackendData = async () => {
-      setLoading(true);
-      setError(null);
-
-      if (!API_URL) throw new Error("Server API is not defined");
-
-      const response = await axios.get<{ message: string }>(API_URL);
-      console.log(response);
-    };
-
-    fetchBackendData();
-  }, [API_URL]);
-
   return (
-    <div>
-      <p>Hello World</p>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        <AppBar position="static" elevation={0}>
+          <Toolbar>
+            <DirectionsCarIcon sx={{ mr: 2, fontSize: 40 }} />
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Electric Vehicle DataGrid Application
+            </Typography>
+          </Toolbar>
+        </AppBar>
 
-      {loading && <p>It is loading</p>}
-      {error && <p>Show error</p>}
-    </div>
+        <Container maxWidth="xl" sx={{ mt: 3 }}>
+          <DataGrid />
+        </Container>
+      </div>
+    </ThemeProvider>
   );
 }
 
