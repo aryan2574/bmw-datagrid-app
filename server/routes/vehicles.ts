@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
     } = req.query;
 
     const offset = (Number(page) - 1) * Number(limit);
-    const whereClause: any = {};
+    const whereClause: WhereOptions<typeof Vehicle> = {};
 
     if (search) {
       whereClause[Op.or] = [
