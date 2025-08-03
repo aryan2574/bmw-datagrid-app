@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "password",
+    "password": "${DB_PASSWORD}",
     "database": "bmw_datagrid",
     "host": "localhost",
     "port": 3306,
