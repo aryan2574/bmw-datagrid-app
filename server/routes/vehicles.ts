@@ -31,43 +31,48 @@ router.get("/", async (req, res) => {
     }
 
     if (filter) {
-      const filterObj = JSON.parse(filter as string);
-      Object.keys(filterObj).forEach((key) => {
-        const filterValue = filterObj[key];
-        if (
-          filterValue &&
-          filterValue.value !== undefined &&
-          filterValue.value !== ""
-        ) {
-          switch (filterValue.operator) {
-            case "contains":
-              whereClause[key] = { [Op.like]: `%${filterValue.value}%` };
-              break;
-            case "equals":
-              whereClause[key] = filterValue.value;
-              break;
-            case "startsWith":
-              whereClause[key] = { [Op.like]: `${filterValue.value}%` };
-              break;
-            case "endsWith":
-              whereClause[key] = { [Op.like]: `%${filterValue.value}` };
-              break;
-            case "isEmpty":
-              whereClause[key] = {
-                [Op.or]: [{ [Op.is]: null }, { [Op.eq]: "" }],
-              };
-              break;
-            case "greaterThan":
-              whereClause[key] = { [Op.gt]: filterValue.value };
-              break;
-            case "lessThan":
-              whereClause[key] = { [Op.lt]: filterValue.value };
-              break;
-            default:
-              whereClause[key] = { [Op.like]: `%${filterValue.value}%` };
+      try {
+        const filterObj = JSON.parse(filter as string);
+        Object.keys(filterObj).forEach((key) => {
+          const filterValue = filterObj[key];
+          if (
+            filterValue &&
+            filterValue.value !== undefined &&
+            filterValue.value !== ""
+          ) {
+            switch (filterValue.operator) {
+              case "contains":
+                whereClause[key] = { [Op.like]: `%${filterValue.value}%` };
+                break;
+              case "equals":
+                whereClause[key] = filterValue.value;
+                break;
+              case "startsWith":
+                whereClause[key] = { [Op.like]: `${filterValue.value}%` };
+                break;
+              case "endsWith":
+                whereClause[key] = { [Op.like]: `%${filterValue.value}` };
+                break;
+              case "isEmpty":
+                whereClause[key] = {
+                  [Op.or]: [{ [Op.is]: null }, { [Op.eq]: "" }],
+                };
+                break;
+              case "greaterThan":
+                whereClause[key] = { [Op.gt]: filterValue.value };
+                break;
+              case "lessThan":
+                whereClause[key] = { [Op.lt]: filterValue.value };
+                break;
+              default:
+                whereClause[key] = { [Op.like]: `%${filterValue.value}%` };
+            }
           }
-        }
-      });
+        });
+      } catch (error) {
+        console.error("Invalid filter JSON:", error);
+        return res.status(400).json({ error: "Invalid filter format" });
+      }
     }
 
     const { count, rows } = await Vehicle.findAndCountAll({

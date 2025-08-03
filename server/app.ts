@@ -12,6 +12,17 @@ interface MulterRequest extends Request {
   file?: Express.Multer.File;
 }
 
+// Safe parsing functions
+const safeParseInt = (value: string, defaultValue: number): number => {
+  const parsed = parseInt(value);
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
+const safeParseFloat = (value: string, defaultValue: number): number => {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
 dotenv.config();
 
 const app = express();
@@ -28,7 +39,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connected successfully.");
-    return sequelize.sync({ force: false });
+    return sequelize.sync({ force: false }); // Set force: true to recreate tables
   })
   .then(() => {
     console.log("✅ Database synchronized.");
@@ -56,11 +67,21 @@ app.post(
       console.log(`📄 File uploaded: ${req.file.originalname}`);
 
       const results: any[] = [];
-      fs.createReadStream(req.file.path)
+      const filePath = req.file.path;
+
+      fs.createReadStream(filePath)
         .pipe(csv())
         .on("data", (data: any) => {
           console.log("📊 Processing row:", data);
           results.push(data);
+        })
+        .on("error", (error) => {
+          console.error("❌ CSV parsing error:", error);
+          // Clean up file on parsing error
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+          res.status(400).json({ error: "Invalid CSV format" });
         })
         .on("end", async () => {
           try {
@@ -70,26 +91,31 @@ app.post(
             await Vehicle.destroy({ where: {} });
             console.log("🗑️ Cleared existing data");
 
-            // Insert new data
+            // Insert new data with safe parsing
             const vehicles = results.map((row) => ({
               brand: row.Brand || row.brand || "",
               model: row.Model || row.model || "",
-              accelSec: parseFloat(row.AccelSec || row.accelSec || "0"),
-              topSpeedKm: parseInt(row.TopSpeed_Km || row.topSpeedKm || "0"),
-              rangeKm: parseInt(row.Range_Km || row.rangeKm || "0"),
-              efficiencyKwh100km: parseInt(
-                row["Efficiency_Kwh/100km"] || row.efficiencyKwh100km || "0"
+              accelSec: safeParseFloat(row.AccelSec || row.accelSec || "0", 0),
+              topSpeedKm: safeParseInt(
+                row.TopSpeed_Km || row.topSpeedKm || "0",
+                0
               ),
-              fastChargKmh: parseInt(
-                row.FastCharg_Km_h || row.fastChargKmh || "0"
+              rangeKm: safeParseInt(row.Range_Km || row.rangeKm || "0", 0),
+              efficiencyKwh100km: safeParseInt(
+                row["Efficiency_Kwh/100km"] || row.efficiencyKwh100km || "0",
+                0
+              ),
+              fastChargKmh: safeParseInt(
+                row.FastCharg_Km_h || row.fastChargKmh || "0",
+                0
               ),
               rapidChar: row.RapidChar || row.rapidChar || "No",
               powerTrain: row.PowerTrain || row.powerTrain || "",
               plugType: row.PlugType || row.plugType || "",
               bodyStyle: row.BodyStyle || row.bodyStyle || "",
               segment: row.Segment || row.segment || "",
-              seats: parseInt(row.Seats || row.seats || "5"),
-              priceEuro: parseInt(row.PriceEuro || row.priceEuro || "0"),
+              seats: safeParseInt(row.Seats || row.seats || "5", 5),
+              priceEuro: safeParseInt(row.PriceEuro || row.priceEuro || "0", 0),
               date: row.Date || row.date || "",
             }));
 
@@ -98,8 +124,8 @@ app.post(
             console.log(`✅ Successfully inserted ${vehicles.length} vehicles`);
 
             // Clean up uploaded file
-            if (req.file) {
-              fs.unlinkSync(req.file.path);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
               console.log("🗂️ Cleaned up uploaded file");
             }
 
@@ -109,11 +135,19 @@ app.post(
             });
           } catch (error) {
             console.error("❌ Error processing CSV:", error);
+            // Clean up file on processing error
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
             res.status(500).json({ error: "Error processing CSV file" });
           }
         });
     } catch (error) {
       console.error("❌ Error uploading CSV:", error);
+      // Clean up file on upload error
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(500).json({ error: "Internal server error" });
     }
   }

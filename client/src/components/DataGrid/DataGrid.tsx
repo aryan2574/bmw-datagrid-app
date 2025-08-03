@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Alert, Snackbar } from "@mui/material";
 import { Vehicle, FilterData } from "../../models/model";
 import SearchAndFilterControls from "./SearchAndFilterControls";
 import VehicleGrid from "./VehicleGrid";
@@ -16,6 +16,8 @@ const DataGrid: React.FC = () => {
     setFilters,
     pagination,
     loading,
+    error,
+    clearError,
     fetchVehicles,
     handlePageChange,
     handlePageSizeChange,
@@ -29,25 +31,51 @@ const DataGrid: React.FC = () => {
     fetchVehicles();
   }, [fetchVehicles]);
 
+  /**
+   * Handles opening the vehicle detail dialog
+   * @param vehicle - The vehicle object to display details for
+   */
   const handleViewVehicle = (vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
     setDetailDialogOpen(true);
   };
 
+  /**
+   * Handles vehicle deletion and refreshes the data grid
+   * @param vehicleId - The ID of the vehicle to delete
+   */
   const handleDeleteVehicle = async (vehicleId: number) => {
     await fetchVehicles();
   };
 
+  /**
+   * Handles manual refresh of the data grid
+   * Refetches data with current pagination settings
+   */
   const handleRefresh = async () => {
     await fetchVehicles(pagination.page, pagination.pageSize);
   };
 
   return (
     <Box sx={{ p: 3 }}>
+      {/* Main title for the application */}
       <Typography variant="h4" gutterBottom>
         Electric Vehicle DataGrid
       </Typography>
 
+      {/* Error notification snackbar */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={clearError}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={clearError} severity="error" sx={{ width: "100%" }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      {/* Search and filter controls component */}
       <SearchAndFilterControls
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -55,6 +83,7 @@ const DataGrid: React.FC = () => {
         setFilters={setFilters}
         onAddFilter={() => setFilterDialogOpen(true)}
         onRemoveFilter={(field: string) => {
+          // Remove a specific filter from the filters object
           setFilters((prev) => {
             const newFilters = { ...prev };
             delete newFilters[field];
@@ -65,6 +94,7 @@ const DataGrid: React.FC = () => {
         loading={loading}
       />
 
+      {/* Main data grid component displaying vehicles */}
       <VehicleGrid
         vehicles={vehicles}
         pagination={pagination}
@@ -75,10 +105,12 @@ const DataGrid: React.FC = () => {
         onPageSizeChange={handlePageSizeChange}
       />
 
+      {/* Filter dialog */}
       <FilterDialog
         open={filterDialogOpen}
         onClose={() => setFilterDialogOpen(false)}
         onAddFilter={(newFilter: FilterData) => {
+          // Add a new filter to the filters object
           setFilters((prev) => ({
             ...prev,
             [newFilter.field]: {
@@ -90,6 +122,7 @@ const DataGrid: React.FC = () => {
         }}
       />
 
+      {/* Vehicle detail dialog */}
       <VehicleDetailDialog
         open={detailDialogOpen}
         onClose={() => setDetailDialogOpen(false)}
