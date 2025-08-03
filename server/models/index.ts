@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
   {
     host: dbConfig.host,
     port: dbConfig.port,
-    dialect: dbConfig.dialect as any,
+    dialect: dbConfig.dialect as Dialect,
     logging: false,
   }
 );
