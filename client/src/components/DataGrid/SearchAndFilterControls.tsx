@@ -129,7 +129,7 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
               px: { xs: 1, sm: 2 },
             }}
           >
-            {isMobile ? "Refresh" : "Refresh"}
+            {"Refresh"}
           </Button>
         </Box>
       </Box>
