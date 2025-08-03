@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import sequelize from "./models/index";
 import Vehicle from "./models/Vehicle";
 import vehicleRoutes from "./routes/vehicles";
@@ -23,6 +25,158 @@ const safeParseFloat = (value: string, defaultValue: number): number => {
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "BMW Electric Vehicle DataGrid API",
+      version: "1.0.0",
+      description:
+        "API for managing electric vehicle data with search, filtering, and CSV upload capabilities",
+      contact: {
+        name: "BMW IT Internship",
+        email: "internship@bmw.com",
+      },
+      license: {
+        name: "MIT",
+        url: "https://opensource.org/licenses/MIT",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:5000",
+        description: "Development server",
+      },
+    ],
+    components: {
+      schemas: {
+        Vehicle: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              description: "Unique identifier for the vehicle",
+            },
+            brand: {
+              type: "string",
+              description: "Vehicle brand/manufacturer",
+            },
+            model: {
+              type: "string",
+              description: "Vehicle model name",
+            },
+            accelSec: {
+              type: "number",
+              description: "Acceleration time (0-100 km/h) in seconds",
+            },
+            topSpeedKm: {
+              type: "integer",
+              description: "Top speed in km/h",
+            },
+            rangeKm: {
+              type: "integer",
+              description: "Electric range in kilometers",
+            },
+            efficiencyKwh100km: {
+              type: "integer",
+              description: "Energy efficiency in kWh/100km",
+            },
+            fastChargKmh: {
+              type: "integer",
+              description: "Fast charging speed in km/h",
+            },
+            rapidChar: {
+              type: "string",
+              description: "Rapid charging availability (Yes/No)",
+            },
+            powerTrain: {
+              type: "string",
+              description: "Power train type (RWD/AWD/FWD)",
+            },
+            plugType: {
+              type: "string",
+              description: "Plug type (Type 2 CCS/Type 1 CHAdeMO)",
+            },
+            bodyStyle: {
+              type: "string",
+              description: "Body style (Sedan, SUV, Hatchback, etc.)",
+            },
+            segment: {
+              type: "string",
+              description: "Vehicle segment (A, B, C, D, E, F)",
+            },
+            seats: {
+              type: "integer",
+              description: "Number of seats",
+            },
+            priceEuro: {
+              type: "integer",
+              description: "Price in Euro",
+            },
+            date: {
+              type: "string",
+              description: "Listing date",
+            },
+          },
+          required: [
+            "brand",
+            "model",
+            "accelSec",
+            "topSpeedKm",
+            "rangeKm",
+            "efficiencyKwh100km",
+            "fastChargKmh",
+            "rapidChar",
+            "powerTrain",
+            "plugType",
+            "bodyStyle",
+            "segment",
+            "seats",
+            "priceEuro",
+            "date",
+          ],
+        },
+        Error: {
+          type: "object",
+          properties: {
+            error: {
+              type: "string",
+              description: "Error message",
+            },
+          },
+        },
+        PaginatedResponse: {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/Vehicle",
+              },
+            },
+            total: {
+              type: "integer",
+              description: "Total number of vehicles",
+            },
+            page: {
+              type: "integer",
+              description: "Current page number",
+            },
+            totalPages: {
+              type: "integer",
+              description: "Total number of pages",
+            },
+          },
+        },
+      },
+    },
+  },
+  apis: ["./routes/*.ts", "./app.ts"],
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+
 dotenv.config();
 
 const app = express();
@@ -30,6 +184,9 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Swagger UI setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Configure multer for file uploads
 const upload = multer({ dest: "temp/" });
@@ -51,7 +208,51 @@ sequelize
 // Routes
 app.use("/api/v1/vehicles", vehicleRoutes);
 
-// CSV upload endpoint
+/**
+ * @swagger
+ * /api/v1/upload-csv:
+ *   post:
+ *     summary: Upload and process CSV file
+ *     description: Upload a CSV file containing electric vehicle data. The file will be processed and vehicles will be imported into the database.
+ *     tags: [CSV Upload]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               csv:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file containing vehicle data
+ *     responses:
+ *       200:
+ *         description: CSV file processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully uploaded 15 electric vehicles"
+ *                 count:
+ *                   type: integer
+ *                   example: 15
+ *       400:
+ *         description: No file uploaded or invalid CSV format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.post(
   "/api/v1/upload-csv",
   upload.single("csv"),
@@ -153,7 +354,29 @@ app.post(
   }
 );
 
-// Test endpoint
+/**
+ * @swagger
+ * /api/v1/test:
+ *   get:
+ *     summary: Test API connectivity
+ *     description: Simple endpoint to test if the API is running
+ *     tags: [Health Check]
+ *     responses:
+ *       200:
+ *         description: API is running successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "BMW Electric Vehicle DataGrid API is running"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-01-15T10:30:00.000Z"
+ */
 app.get("/api/v1/test", (req, res) => {
   res.json({
     message: "BMW Electric Vehicle DataGrid API is running",
@@ -164,6 +387,9 @@ app.get("/api/v1/test", (req, res) => {
 app.listen(port, () => {
   console.log(
     `🚀 BMW Electric Vehicle DataGrid Server is running on port: ${port}`
+  );
+  console.log(
+    `📚 API Documentation available at: http://localhost:${port}/api-docs`
   );
 });
 

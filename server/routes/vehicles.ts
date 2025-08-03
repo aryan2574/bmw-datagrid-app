@@ -4,6 +4,63 @@ import Vehicle from "../models/Vehicle";
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/v1/vehicles:
+ *   get:
+ *     summary: Get all vehicles with search and filtering
+ *     description: Retrieve a paginated list of electric vehicles with optional search and filtering capabilities
+ *     tags: [Vehicles]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter vehicles by brand, model, body style, segment, power train, plug type, or rapid charge
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of vehicles per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: id
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: ASC
+ *         description: Sort order (ASC or DESC)
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *         description: JSON string containing filter criteria with operator and value
+ *     responses:
+ *       200:
+ *         description: List of vehicles retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get("/", async (req, res) => {
   try {
     const {
@@ -94,6 +151,40 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/vehicles/{id}:
+ *   get:
+ *     summary: Get vehicle by ID
+ *     description: Retrieve a specific vehicle by its unique identifier
+ *     tags: [Vehicles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Vehicle ID
+ *     responses:
+ *       200:
+ *         description: Vehicle retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vehicle'
+ *       404:
+ *         description: Vehicle not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);
@@ -107,6 +198,33 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/vehicles:
+ *   post:
+ *     summary: Create a new vehicle
+ *     description: Create a new electric vehicle record in the database
+ *     tags: [Vehicles]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Vehicle'
+ *     responses:
+ *       201:
+ *         description: Vehicle created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vehicle'
+ *       400:
+ *         description: Invalid data provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post("/", async (req, res) => {
   try {
     const vehicle = await Vehicle.create(req.body);
@@ -117,6 +235,46 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/vehicles/{id}:
+ *   put:
+ *     summary: Update vehicle by ID
+ *     description: Update an existing vehicle record by its unique identifier
+ *     tags: [Vehicles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Vehicle ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Vehicle'
+ *     responses:
+ *       200:
+ *         description: Vehicle updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vehicle'
+ *       404:
+ *         description: Vehicle not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Invalid data provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);
@@ -131,6 +289,44 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/vehicles/{id}:
+ *   delete:
+ *     summary: Delete vehicle by ID
+ *     description: Delete a vehicle record by its unique identifier
+ *     tags: [Vehicles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Vehicle ID
+ *     responses:
+ *       200:
+ *         description: Vehicle deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vehicle deleted successfully"
+ *       404:
+ *         description: Vehicle not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete("/:id", async (req, res) => {
   try {
     const vehicle = await Vehicle.findByPk(req.params.id);

@@ -22,6 +22,7 @@ A comprehensive data grid application built for BMW IT Internship, featuring AG 
 - **CSV Processing**: Upload and parse CSV files
 - **Database Integration**: MySQL with Sequelize ORM
 - **Pagination**: Server-side pagination support
+- **API Documentation**: Complete Swagger/OpenAPI documentation
 
 ## 🛠️ Technology Stack
 
@@ -41,6 +42,8 @@ A comprehensive data grid application built for BMW IT Internship, featuring AG 
 - Sequelize ORM 6.37.7
 - Multer 2.0.2 for file uploads
 - CSV Parser 3.2.0
+- Swagger JSDoc 6.2.8 for API documentation
+- Swagger UI Express 5.0.0 for documentation UI
 
 ## 📋 Prerequisites
 
@@ -144,6 +147,38 @@ npm run lint:fix     # Fix ESLint issues
 npm run type-check   # Run TypeScript type checking
 ```
 
+## 📚 API Documentation
+
+The API includes comprehensive Swagger/OpenAPI documentation accessible at:
+
+**http://localhost:5000/api-docs**
+
+### API Documentation Features:
+
+- **Interactive Documentation**: Test API endpoints directly from the browser
+- **Request/Response Examples**: See example requests and responses
+- **Schema Definitions**: Complete data model documentation
+- **Error Responses**: Documented error scenarios and codes
+- **Authentication**: Ready for future authentication implementation
+
+### Available Endpoints:
+
+#### Vehicles
+
+- `GET /api/v1/vehicles` - Get all vehicles with search/filter/pagination
+- `GET /api/v1/vehicles/:id` - Get vehicle by ID
+- `POST /api/v1/vehicles` - Create new vehicle
+- `PUT /api/v1/vehicles/:id` - Update vehicle
+- `DELETE /api/v1/vehicles/:id` - Delete vehicle
+
+#### CSV Upload
+
+- `POST /api/v1/upload-csv` - Upload and process CSV file
+
+#### Health Check
+
+- `GET /api/v1/test` - Test API connectivity
+
 ## 🔧 API Endpoints
 
 ### Vehicles
@@ -198,6 +233,7 @@ bmw-datagrid-app/
 - [x] Advanced filtering with multiple operators
 - [x] Express.js backend with MySQL database
 - [x] CSV file upload and processing
+- [x] Complete API documentation with Swagger/OpenAPI
 
 ### ✅ Electric Vehicle Data Fields
 
@@ -230,6 +266,8 @@ bmw-datagrid-app/
 - [x] Error handling and validation
 - [x] ESLint configuration for code quality
 - [x] TypeScript type checking
+- [x] Swagger API documentation
+- [x] Interactive API testing interface
 
 ## 🧪 Testing
 
@@ -239,6 +277,7 @@ bmw-datagrid-app/
 cd server
 npm run dev
 # Test API endpoints using Postman or curl
+# Or visit http://localhost:5000/api-docs for interactive testing
 ```
 
 ### Frontend Testing
