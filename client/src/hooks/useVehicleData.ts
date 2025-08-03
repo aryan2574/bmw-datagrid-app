@@ -16,11 +16,13 @@ export const useVehicleData = () => {
     totalPages: 0,
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchVehicles = useCallback(
     async (page?: number, pageSize?: number) => {
       try {
         setLoading(true);
+        setError(null);
         const params = new URLSearchParams();
 
         // Use provided page/pageSize or current state
@@ -58,6 +60,7 @@ export const useVehicleData = () => {
         });
       } catch (error) {
         console.error("Error fetching vehicles:", error);
+        setError("Failed to load vehicles. Please try again.");
         // Reset to empty state on error
         setVehicles([]);
         setPagination({
@@ -91,11 +94,13 @@ export const useVehicleData = () => {
   const deleteVehicle = useCallback(
     async (vehicleId: number) => {
       try {
+        setError(null);
         await axios.delete(`${API_URL}/vehicles/${vehicleId}`);
         // Refresh current page data
         await fetchVehicles(pagination.page, pagination.pageSize);
       } catch (error) {
         console.error("Error deleting vehicle:", error);
+        setError("Failed to delete vehicle. Please try again.");
       }
     },
     [fetchVehicles, pagination.page, pagination.pageSize]
@@ -107,6 +112,7 @@ export const useVehicleData = () => {
       formData.append("csv", file);
 
       try {
+        setError(null);
         await axios.post(`${API_URL}/upload-csv`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -116,10 +122,17 @@ export const useVehicleData = () => {
         await fetchVehicles(1, pagination.pageSize);
       } catch (error) {
         console.error("Error uploading CSV:", error);
+        setError(
+          "Failed to upload CSV file. Please check the file format and try again."
+        );
       }
     },
     [fetchVehicles, pagination.pageSize]
   );
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   return {
     vehicles,
@@ -129,6 +142,8 @@ export const useVehicleData = () => {
     setFilters,
     pagination,
     loading,
+    error,
+    clearError,
     fetchVehicles,
     handlePageChange,
     handlePageSizeChange,
