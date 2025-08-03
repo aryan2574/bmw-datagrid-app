@@ -6,6 +6,8 @@ import {
   Paper,
   Chip,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Upload as UploadIcon,
@@ -26,6 +28,8 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
   loading = false,
 }) => {
   const { uploadCSV } = useVehicleData();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -42,8 +46,16 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
   };
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+    <Paper sx={{ p: { xs: 1, sm: 2 }, mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: { xs: 1, sm: 2 },
+          alignItems: "center",
+          mb: 2,
+          flexDirection: { xs: "column", sm: "row" },
+        }}
+      >
         <TextField
           label="Search electric vehicles"
           placeholder="Search electric vehicles"
@@ -54,35 +66,72 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
               <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
             ),
           }}
-          sx={{ minWidth: 300, maxWidth: 500 }}
+          sx={{
+            minWidth: { xs: "100%", sm: 300 },
+            maxWidth: { xs: "100%", sm: 500 },
+            mb: { xs: 1, sm: 0 },
+          }}
+          size={isMobile ? "small" : "medium"}
         />
 
-        <Button
-          variant="outlined"
-          startIcon={<FilterIcon />}
-          onClick={onAddFilter}
+        <Box
+          sx={{
+            display: "flex",
+            gap: { xs: 1, sm: 2 },
+            flexDirection: { xs: "row", sm: "row" },
+            width: { xs: "100%", sm: "auto" },
+            justifyContent: { xs: "space-between", sm: "flex-start" },
+          }}
         >
-          Add Filter
-        </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FilterIcon />}
+            onClick={onAddFilter}
+            size={isMobile ? "small" : "medium"}
+            sx={{
+              minWidth: { xs: "auto", sm: "auto" },
+              px: { xs: 1, sm: 2 },
+            }}
+          >
+            {isMobile ? "Filter" : "Add Filter"}
+          </Button>
 
-        <Button
-          variant="outlined"
-          component="label"
-          startIcon={<UploadIcon />}
-          sx={{ minWidth: 150, maxWidth: 200 }}
-        >
-          Upload CSV
-          <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
-        </Button>
+          <Button
+            variant="outlined"
+            component="label"
+            startIcon={<UploadIcon />}
+            size={isMobile ? "small" : "medium"}
+            sx={{
+              minWidth: { xs: "auto", sm: 150 },
+              maxWidth: { xs: "auto", sm: 200 },
+              px: { xs: 1, sm: 2 },
+            }}
+          >
+            {isMobile ? "CSV" : "Upload CSV"}
+            <input
+              type="file"
+              accept=".csv"
+              hidden
+              onChange={handleFileUpload}
+            />
+          </Button>
 
-        <Button
-          variant="outlined"
-          startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
-          onClick={handleRefresh}
-          disabled={loading}
-        >
-          Refresh
-        </Button>
+          <Button
+            variant="outlined"
+            startIcon={
+              loading ? <CircularProgress size={16} /> : <RefreshIcon />
+            }
+            onClick={handleRefresh}
+            disabled={loading}
+            size={isMobile ? "small" : "medium"}
+            sx={{
+              minWidth: { xs: "auto", sm: "auto" },
+              px: { xs: 1, sm: 2 },
+            }}
+          >
+            {isMobile ? "Refresh" : "Refresh"}
+          </Button>
+        </Box>
       </Box>
 
       {Object.keys(filters).length > 0 && (
@@ -94,6 +143,11 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
               onDelete={() => onRemoveFilter(field)}
               color="primary"
               variant="outlined"
+              size={isMobile ? "small" : "medium"}
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                maxWidth: { xs: "100%", sm: "auto" },
+              }}
             />
           ))}
         </Box>

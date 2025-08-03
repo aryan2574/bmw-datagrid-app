@@ -19,6 +19,15 @@ const theme = createTheme({
       fontWeight: 600,
     },
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+    },
+  },
 });
 
 function App() {
@@ -28,14 +37,39 @@ function App() {
       <div className="App">
         <AppBar position="static" elevation={0}>
           <Toolbar>
-            <DirectionsCarIcon sx={{ mr: 2, fontSize: 40 }} />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <DirectionsCarIcon sx={{ mr: 2, fontSize: { xs: 32, sm: 40 } }} />
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                fontSize: { xs: "1rem", sm: "1.25rem" },
+                display: { xs: "none", sm: "block" },
+              }}
+            >
               Electric Vehicle DataGrid Application
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                fontSize: "1rem",
+                display: { xs: "block", sm: "none" },
+              }}
+            >
+              EV DataGrid
             </Typography>
           </Toolbar>
         </AppBar>
 
-        <Container maxWidth="xl" sx={{ mt: 3 }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            mt: { xs: 1, sm: 3 },
+            px: { xs: 1, sm: 2, md: 3 },
+          }}
+        >
           <DataGrid />
         </Container>
       </div>
