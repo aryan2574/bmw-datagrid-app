@@ -8,13 +8,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { Vehicle } from "../../models/model";
-
-interface VehicleDetailDialogProps {
-  open: boolean;
-  onClose: () => void;
-  vehicle: Vehicle | null;
-}
+import { VehicleDetailDialogProps } from "../../models/model";
 
 const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
   open,

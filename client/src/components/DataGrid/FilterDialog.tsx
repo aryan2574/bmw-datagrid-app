@@ -12,14 +12,14 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import { FilterDialogProps } from "../../models/model";
+import { FilterData, FilterDialogProps } from "../../models/model";
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   open,
   onClose,
   onAddFilter,
 }) => {
-  const [currentFilter, setCurrentFilter] = useState({
+  const [currentFilter, setCurrentFilter] = useState<FilterData>({
     field: "",
     operator: "contains",
     value: "",

@@ -13,21 +13,8 @@ import {
   FilterList as FilterIcon,
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
-import { FilterState } from "../../models/model";
+import { SearchAndFilterControlsProps } from "../../models/model";
 import { useVehicleData } from "../../hooks/useVehicleData";
-
-interface SearchAndFilterControlsProps {
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  filters: FilterState;
-  setFilters: (
-    filters: FilterState | ((prev: FilterState) => FilterState)
-  ) => void;
-  onAddFilter: () => void;
-  onRemoveFilter: (field: string) => void;
-  onRefresh?: () => void;
-  loading?: boolean;
-}
 
 const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
   searchTerm,
@@ -59,6 +46,7 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
       <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
         <TextField
           label="Search electric vehicles"
+          placeholder="Search electric vehicles"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -66,7 +54,7 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
               <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
             ),
           }}
-          sx={{ minWidth: 300 }}
+          sx={{ minWidth: 300, maxWidth: 500 }}
         />
 
         <Button
@@ -77,7 +65,12 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
           Add Filter
         </Button>
 
-        <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
+        <Button
+          variant="outlined"
+          component="label"
+          startIcon={<UploadIcon />}
+          sx={{ minWidth: 150, maxWidth: 200 }}
+        >
           Upload CSV
           <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
         </Button>
@@ -92,7 +85,6 @@ const SearchAndFilterControls: React.FC<SearchAndFilterControlsProps> = ({
         </Button>
       </Box>
 
-      {/* Active Filters */}
       {Object.keys(filters).length > 0 && (
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {Object.entries(filters).map(([field, filter]) => (

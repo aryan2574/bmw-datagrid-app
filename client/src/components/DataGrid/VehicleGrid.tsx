@@ -19,21 +19,11 @@ import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { Vehicle } from "../../models/model";
-import { useVehicleData, PaginationState } from "../../hooks/useVehicleData";
+import { VehicleGridProps } from "../../models/model";
+import { useVehicleData } from "../../hooks/useVehicleData";
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-interface VehicleGridProps {
-  vehicles: Vehicle[];
-  pagination: PaginationState;
-  loading: boolean;
-  onViewVehicle: (vehicle: Vehicle) => void;
-  onDeleteVehicle: (vehicleId: number) => void;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
-}
 
 const VehicleGrid: React.FC<VehicleGridProps> = ({
   vehicles,
@@ -46,7 +36,6 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
 }) => {
   const { deleteVehicle } = useVehicleData();
 
-  // Action cell renderer
   const ActionCellRenderer = useMemo(
     () => (props: ICellRendererParams) => {
       const handleView = () => {
@@ -216,6 +205,7 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
 
   const handleGridReady = (params: GridReadyEvent) => {
     // Grid API is available but not used in this implementation
+    console.log(params);
   };
 
   const handlePageSizeChange = (event: SelectChangeEvent<number>) => {
@@ -234,14 +224,13 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
             columnDefs={columnDefs}
             rowData={vehicles}
             onGridReady={handleGridReady}
-            pagination={false} // Disable client-side pagination
+            pagination={false}
             domLayout="normal"
             overlayLoadingTemplate="<span class='ag-overlay-loading-center'>Loading electric vehicles...</span>"
             overlayNoRowsTemplate="<span class='ag-overlay-no-rows-center'>No electric vehicles found</span>"
           />
         </div>
 
-        {/* Loading Overlay */}
         {loading && (
           <Box
             sx={{
@@ -262,7 +251,6 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
         )}
       </Paper>
 
-      {/* Custom Pagination Controls */}
       <Box
         sx={{
           display: "flex",
@@ -279,7 +267,7 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
           <Typography variant="body2" color="text.secondary">
             Rows per page:
           </Typography>
-          <FormControl size="small" sx={{ minWidth: 80 }}>
+          <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
             <Select
               value={pagination.pageSize}
               onChange={handlePageSizeChange}

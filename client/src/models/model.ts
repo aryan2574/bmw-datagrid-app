@@ -33,9 +33,41 @@ export interface FilterData {
 export interface FilterDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddFilter: (filter: {
-    field: string;
-    operator: string;
-    value: string;
-  }) => void;
+  onAddFilter: (filter: FilterData) => void;
+}
+
+export interface SearchAndFilterControlsProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  filters: FilterState;
+  setFilters: (
+    filters: FilterState | ((prev: FilterState) => FilterState)
+  ) => void;
+  onAddFilter: () => void;
+  onRemoveFilter: (field: string) => void;
+  onRefresh?: () => void;
+  loading?: boolean;
+}
+
+export interface VehicleDetailDialogProps {
+  open: boolean;
+  onClose: () => void;
+  vehicle: Vehicle | null;
+}
+
+export interface PaginationState {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface VehicleGridProps {
+  vehicles: Vehicle[];
+  pagination: PaginationState;
+  loading: boolean;
+  onViewVehicle: (vehicle: Vehicle) => void;
+  onDeleteVehicle: (vehicleId: number) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
