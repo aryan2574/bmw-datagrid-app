@@ -28,7 +28,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connected successfully.");
-    return sequelize.sync({ force: false }); // Set force: true to recreate tables
+    return sequelize.sync({ force: false });
   })
   .then(() => {
     console.log("✅ Database synchronized.");

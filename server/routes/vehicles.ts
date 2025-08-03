@@ -1,5 +1,5 @@
 import express from "express";
-import { Op } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 import Vehicle from "../models/Vehicle";
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
     } = req.query;
 
     const offset = (Number(page) - 1) * Number(limit);
-    const whereClause: WhereOptions<typeof Vehicle> = {};
+    const whereClause: any = {};
 
     if (search) {
       whereClause[Op.or] = [

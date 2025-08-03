@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Dialect } from "sequelize";
 import config from "../config/config.json";
 
 const env = process.env.NODE_ENV || "development";
