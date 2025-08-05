@@ -128,7 +128,7 @@ export const useVehicleData = () => {
 
       try {
         setError(null);
-        await axios.post(`${API_URL}/upload-csv`, formData, {
+        await axios.post(`${API_URL}/upload/csv`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
