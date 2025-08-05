@@ -96,14 +96,29 @@ export const useVehicleData = () => {
       try {
         setError(null);
         await axios.delete(`${API_URL}/vehicles/${vehicleId}`);
-        // Refresh current page data
-        await fetchVehicles(pagination.page, pagination.pageSize);
+
+        // Check if we need to go to the previous page
+        // If we're on page > 1 and this was the last item on the page
+        const currentPage = pagination.page;
+        const currentPageSize = pagination.pageSize;
+        const totalItems = pagination.total;
+
+        // Calculate if we need to go to the previous page
+        const itemsOnCurrentPage =
+          totalItems - (currentPage - 1) * currentPageSize;
+        const newPage =
+          itemsOnCurrentPage <= 1 && currentPage > 1
+            ? currentPage - 1
+            : currentPage;
+
+        // Refresh data with appropriate page
+        await fetchVehicles(newPage, currentPageSize);
       } catch (error) {
         console.error("Error deleting vehicle:", error);
         setError("Failed to delete vehicle. Please try again.");
       }
     },
-    [fetchVehicles, pagination.page, pagination.pageSize]
+    [fetchVehicles, pagination.page, pagination.pageSize, pagination.total]
   );
 
   const uploadCSV = useCallback(

@@ -48,8 +48,13 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
 
       const handleDelete = async () => {
         if (window.confirm("Are you sure you want to delete this vehicle?")) {
-          await deleteVehicle(props.data.id);
-          // Removed onDeleteVehicle callback to prevent race condition
+          try {
+            await deleteVehicle(props.data.id);
+            // Call the onDeleteVehicle callback to ensure proper refresh
+            onDeleteVehicle(props.data.id);
+          } catch (error) {
+            console.error("Error deleting vehicle:", error);
+          }
         }
       };
 
@@ -64,7 +69,7 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
         </Box>
       );
     },
-    [onViewVehicle, deleteVehicle]
+    [onViewVehicle, deleteVehicle, onDeleteVehicle]
   );
 
   // Column definitions with responsive visibility
