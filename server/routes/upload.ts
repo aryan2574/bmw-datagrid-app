@@ -3,6 +3,7 @@ import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
 import Vehicle from "../models/Vehicle";
+import sequelize from "../models/index";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -98,14 +99,12 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
         res.status(400).json({ error: "Invalid CSV format" });
       })
       .on("end", async () => {
+        const transaction = await sequelize.transaction();
+
         try {
           console.log(`📈 Total rows to process: ${results.length}`);
 
-          // Clear existing data
-          await Vehicle.destroy({ where: {} });
-          console.log("🗑️ Cleared existing data");
-
-          // Insert new data with safe parsing
+          // Parse and validate data before any database operations
           const vehicles = results.map((row) => ({
             brand: row.Brand || row.brand || "",
             model: row.Model || row.model || "",
@@ -133,9 +132,29 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
             date: row.Date || row.date || "",
           }));
 
+          // Validate that we have valid data
+          if (vehicles.length === 0) {
+            throw new Error("No valid vehicle data found in CSV");
+          }
+
+          // Additional validation: check for required fields
+          const invalidVehicles = vehicles.filter((v) => !v.brand || !v.model);
+          if (invalidVehicles.length > 0) {
+            throw new Error(
+              `Found ${invalidVehicles.length} vehicles with missing brand or model information`
+            );
+          }
+
+          console.log("🗑️ Clearing existing data within transaction...");
+          await Vehicle.destroy({ where: {}, transaction });
+
           console.log("💾 Inserting vehicles into database...");
-          await Vehicle.bulkCreate(vehicles);
+          await Vehicle.bulkCreate(vehicles, { transaction });
           console.log(`✅ Successfully inserted ${vehicles.length} vehicles`);
+
+          // Commit the transaction
+          await transaction.commit();
+          console.log("✅ Transaction committed successfully");
 
           // Clean up uploaded file
           if (fs.existsSync(filePath)) {
@@ -148,12 +167,22 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
             count: vehicles.length,
           });
         } catch (error) {
-          console.error("❌ Error processing CSV:", error);
+          // Rollback the transaction on any error
+          await transaction.rollback();
+          console.error(
+            "❌ Error processing CSV, transaction rolled back:",
+            error
+          );
+
           // Clean up file on processing error
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
           }
-          res.status(500).json({ error: "Error processing CSV file" });
+
+          res.status(500).json({
+            error: "Error processing CSV file. No data was modified.",
+            details: error instanceof Error ? error.message : "Unknown error",
+          });
         }
       });
   } catch (error) {
@@ -162,7 +191,10 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: "Internal server error during file upload",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 
