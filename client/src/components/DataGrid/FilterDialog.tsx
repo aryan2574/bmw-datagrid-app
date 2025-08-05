@@ -5,27 +5,70 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   TextField,
+  Box,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { FilterData, FilterDialogProps } from "../../models/model";
+import { FilterDialogProps, FilterData } from "../../models/model";
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   open,
   onClose,
   onAddFilter,
 }) => {
-  const [currentFilter, setCurrentFilter] = useState<FilterData>({
-    field: "",
-    operator: "contains",
-    value: "",
-  });
+  const [field, setField] = useState<string>("");
+  const [operator, setOperator] = useState<string>("contains");
+  const [value, setValue] = useState<string>("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const filterOperators = [
+  const handleSubmit = () => {
+    if (field && operator && value) {
+      const newFilter: FilterData = {
+        field,
+        operator,
+        value,
+      };
+      onAddFilter(newFilter);
+      // Reset form
+      setField("");
+      setOperator("contains");
+      setValue("");
+    }
+  };
+
+  const handleClose = () => {
+    // Reset form
+    setField("");
+    setOperator("contains");
+    setValue("");
+    onClose();
+  };
+
+  const vehicleFields = [
+    "brand",
+    "model",
+    "accelSec",
+    "topSpeedKm",
+    "rangeKm",
+    "efficiencyKwh100km",
+    "fastChargKmh",
+    "rapidChar",
+    "powerTrain",
+    "plugType",
+    "bodyStyle",
+    "segment",
+    "seats",
+    "priceEuro",
+    "date",
+  ];
+
+  const operators = [
     { value: "contains", label: "Contains" },
     { value: "equals", label: "Equals" },
     { value: "startsWith", label: "Starts with" },
@@ -35,81 +78,49 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     { value: "lessThan", label: "Less than" },
   ];
 
-  const filterFields = [
-    { value: "brand", label: "Brand" },
-    { value: "model", label: "Model" },
-    { value: "bodyStyle", label: "Body Style" },
-    { value: "segment", label: "Segment" },
-    { value: "powerTrain", label: "Power Train" },
-    { value: "plugType", label: "Plug Type" },
-    { value: "rapidChar", label: "Rapid Charge" },
-    { value: "accelSec", label: "Acceleration" },
-    { value: "topSpeedKm", label: "Top Speed" },
-    { value: "rangeKm", label: "Range" },
-    { value: "efficiencyKwh100km", label: "Efficiency" },
-    { value: "fastChargKmh", label: "Fast Charge" },
-    { value: "seats", label: "Seats" },
-    { value: "priceEuro", label: "Price" },
-  ];
-
-  const handleAddFilter = () => {
-    if (currentFilter.field && currentFilter.value) {
-      onAddFilter(currentFilter);
-      setCurrentFilter({ field: "", operator: "contains", value: "" });
-    }
-  };
-
-  const handleClose = () => {
-    setCurrentFilter({ field: "", operator: "contains", value: "" });
-    onClose();
-  };
-
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Add Filter</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      fullScreen={isMobile}
+    >
+      <DialogTitle sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>
+        Add Filter
+      </DialogTitle>
       <DialogContent>
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 2,
-            minWidth: 300,
+            gap: { xs: 2, sm: 3 },
             pt: 1,
           }}
         >
-          <FormControl fullWidth>
+          <FormControl fullWidth size={isMobile ? "small" : "medium"}>
             <InputLabel>Field</InputLabel>
             <Select
-              value={currentFilter.field}
-              onChange={(e) =>
-                setCurrentFilter((prev) => ({
-                  ...prev,
-                  field: e.target.value,
-                }))
-              }
+              value={field}
+              onChange={(e) => setField(e.target.value)}
               label="Field"
             >
-              {filterFields.map((field) => (
-                <MenuItem key={field.value} value={field.value}>
-                  {field.label}
+              {vehicleFields.map((fieldName) => (
+                <MenuItem key={fieldName} value={fieldName}>
+                  {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <FormControl fullWidth>
+          <FormControl fullWidth size={isMobile ? "small" : "medium"}>
             <InputLabel>Operator</InputLabel>
             <Select
-              value={currentFilter.operator}
-              onChange={(e) =>
-                setCurrentFilter((prev) => ({
-                  ...prev,
-                  operator: e.target.value,
-                }))
-              }
+              value={operator}
+              onChange={(e) => setOperator(e.target.value)}
               label="Operator"
             >
-              {filterOperators.map((op) => (
+              {operators.map((op) => (
                 <MenuItem key={op.value} value={op.value}>
                   {op.label}
                 </MenuItem>
@@ -119,17 +130,24 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
 
           <TextField
             label="Value"
-            value={currentFilter.value}
-            onChange={(e) =>
-              setCurrentFilter((prev) => ({ ...prev, value: e.target.value }))
-            }
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             fullWidth
+            size={isMobile ? "small" : "medium"}
+            disabled={operator === "isEmpty"}
           />
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleAddFilter} variant="contained">
+      <DialogActions sx={{ p: { xs: 2, sm: 1 } }}>
+        <Button onClick={handleClose} size={isMobile ? "large" : "medium"}>
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={!field || !operator || (operator !== "isEmpty" && !value)}
+          size={isMobile ? "large" : "medium"}
+        >
           Add Filter
         </Button>
       </DialogActions>

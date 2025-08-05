@@ -11,3 +11,81 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Mobile-specific AG Grid styles */
+@media (max-width: 600px) {
+  .ag-theme-quartz {
+    font-size: 12px;
+  }
+
+  .ag-theme-quartz .ag-header-cell-text {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .ag-theme-quartz .ag-cell {
+    font-size: 11px;
+    padding: 4px 2px;
+  }
+
+  .ag-theme-quartz .ag-header-cell {
+    padding: 4px 2px;
+  }
+
+  /* Improve touch targets on mobile */
+  .ag-theme-quartz .ag-row {
+    min-height: 40px;
+  }
+
+  /* Make action buttons more touch-friendly */
+  .ag-theme-quartz .ag-cell .MuiIconButton-root {
+    padding: 8px;
+    margin: 0 2px;
+  }
+
+  /* Improve chip readability on mobile */
+  .ag-theme-quartz .ag-cell .MuiChip-root {
+    font-size: 10px;
+    height: 20px;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 601px) and (max-width: 960px) {
+  .ag-theme-quartz {
+    font-size: 13px;
+  }
+
+  .ag-theme-quartz .ag-header-cell-text {
+    font-size: 12px;
+  }
+
+  .ag-theme-quartz .ag-cell {
+    font-size: 12px;
+  }
+}
+
+/* Ensure proper scrolling on mobile */
+.ag-theme-quartz .ag-body-viewport {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+/* Improve mobile touch scrolling */
+.ag-theme-quartz .ag-body-viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ag-theme-quartz .ag-body-viewport::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.ag-theme-quartz .ag-body-viewport::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.ag-theme-quartz .ag-body-viewport::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

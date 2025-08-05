@@ -57,9 +57,17 @@ const DataGrid: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Main title for the application */}
-      <Typography variant="h4" gutterBottom>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          fontSize: { xs: "1.5rem", sm: "2.125rem" },
+          textAlign: { xs: "center", sm: "left" },
+          mb: { xs: 2, sm: 3 },
+        }}
+      >
         Electric Vehicle DataGrid
       </Typography>
 

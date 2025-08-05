@@ -14,6 +14,8 @@ import {
   Typography,
   SelectChangeEvent,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Visibility as ViewIcon,
@@ -35,6 +37,8 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
   onPageSizeChange,
 }) => {
   const { deleteVehicle } = useVehicleData();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const ActionCellRenderer = useMemo(
     () => (props: ICellRendererParams) => {
@@ -50,12 +54,12 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
       };
 
       return (
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
           <IconButton size="small" onClick={handleView} color="primary">
-            <ViewIcon />
+            <ViewIcon fontSize="small" />
           </IconButton>
           <IconButton size="small" onClick={handleDelete} color="error">
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Box>
       );
@@ -63,74 +67,74 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
     [onViewVehicle, deleteVehicle]
   );
 
-  // Column definitions
+  // Column definitions with responsive visibility
   const columnDefs: ColDef[] = useMemo(
     () => [
       {
         field: "id",
         headerName: "ID",
-        width: 80,
+        width: isMobile ? 60 : 80,
         sortable: true,
         filter: true,
       },
       {
         field: "brand",
         headerName: "Brand",
-        width: 120,
+        width: isMobile ? 80 : 120,
         sortable: true,
         filter: true,
       },
       {
         field: "model",
         headerName: "Model",
-        width: 150,
+        width: isMobile ? 100 : 150,
         sortable: true,
         filter: true,
       },
       {
         field: "accelSec",
-        headerName: "Acceleration (s)",
-        width: 130,
+        headerName: isMobile ? "Accel" : "Acceleration (s)",
+        width: isMobile ? 70 : 130,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `${params.value}s`,
       },
       {
         field: "topSpeedKm",
-        headerName: "Top Speed (km/h)",
-        width: 140,
+        headerName: isMobile ? "Speed" : "Top Speed (km/h)",
+        width: isMobile ? 70 : 140,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `${params.value} km/h`,
       },
       {
         field: "rangeKm",
-        headerName: "Range (km)",
-        width: 120,
+        headerName: isMobile ? "Range" : "Range (km)",
+        width: isMobile ? 70 : 120,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `${params.value} km`,
       },
       {
         field: "efficiencyKwh100km",
-        headerName: "Efficiency (kWh/100km)",
-        width: 160,
+        headerName: isMobile ? "Efficiency" : "Efficiency (kWh/100km)",
+        width: isMobile ? 90 : 160,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `${params.value} kWh/100km`,
       },
       {
         field: "fastChargKmh",
-        headerName: "Fast Charge (km/h)",
-        width: 150,
+        headerName: isMobile ? "Fast Charge" : "Fast Charge (km/h)",
+        width: isMobile ? 90 : 150,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `${params.value} km/h`,
       },
       {
         field: "rapidChar",
-        headerName: "Rapid Charge",
-        width: 120,
+        headerName: isMobile ? "Rapid" : "Rapid Charge",
+        width: isMobile ? 70 : 120,
         sortable: true,
         filter: true,
         cellRenderer: (params: ICellRendererParams) => (
@@ -138,48 +142,49 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
             label={params.value}
             color={params.value === "Yes" ? "success" : "default"}
             size="small"
+            sx={{ fontSize: "0.7rem" }}
           />
         ),
       },
       {
         field: "powerTrain",
-        headerName: "Power Train",
-        width: 120,
+        headerName: isMobile ? "Train" : "Power Train",
+        width: isMobile ? 80 : 120,
         sortable: true,
         filter: true,
       },
       {
         field: "plugType",
-        headerName: "Plug Type",
-        width: 130,
+        headerName: isMobile ? "Plug" : "Plug Type",
+        width: isMobile ? 70 : 130,
         sortable: true,
         filter: true,
       },
       {
         field: "bodyStyle",
-        headerName: "Body Style",
-        width: 120,
+        headerName: isMobile ? "Style" : "Body Style",
+        width: isMobile ? 80 : 120,
         sortable: true,
         filter: true,
       },
       {
         field: "segment",
         headerName: "Segment",
-        width: 100,
+        width: isMobile ? 70 : 100,
         sortable: true,
         filter: true,
       },
       {
         field: "seats",
         headerName: "Seats",
-        width: 80,
+        width: isMobile ? 60 : 80,
         sortable: true,
         filter: true,
       },
       {
         field: "priceEuro",
-        headerName: "Price (€)",
-        width: 120,
+        headerName: isMobile ? "Price" : "Price (€)",
+        width: isMobile ? 80 : 120,
         sortable: true,
         filter: true,
         valueFormatter: (params) => `€${params.value?.toLocaleString()}`,
@@ -187,20 +192,20 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
       {
         field: "date",
         headerName: "Date",
-        width: 100,
+        width: isMobile ? 70 : 100,
         sortable: true,
         filter: true,
       },
       {
         headerName: "Actions",
-        width: 120,
+        width: isMobile ? 80 : 120,
         cellRenderer: ActionCellRenderer,
         sortable: false,
         filter: false,
         pinned: "right",
       },
     ],
-    [ActionCellRenderer]
+    [ActionCellRenderer, isMobile]
   );
 
   const handleGridReady = (params: GridReadyEvent) => {
@@ -215,7 +220,9 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
 
   return (
     <Box>
-      <Paper sx={{ height: 600, position: "relative" }}>
+      <Paper
+        sx={{ height: { xs: 400, sm: 500, md: 600 }, position: "relative" }}
+      >
         <div
           className="ag-theme-quartz"
           style={{ height: "100%", width: "100%" }}
@@ -228,6 +235,11 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
             domLayout="normal"
             overlayLoadingTemplate="<span class='ag-overlay-loading-center'>Loading electric vehicles...</span>"
             overlayNoRowsTemplate="<span class='ag-overlay-no-rows-center'>No electric vehicles found</span>"
+            defaultColDef={{
+              resizable: !isMobile,
+              sortable: true,
+              filter: true,
+            }}
           />
         </div>
 
@@ -257,13 +269,23 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
           justifyContent: "space-between",
           alignItems: "center",
           mt: 2,
-          p: 2,
+          p: { xs: 1, sm: 2 },
           backgroundColor: "background.paper",
           borderRadius: 1,
           boxShadow: 1,
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 1, sm: 0 },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            flexDirection: { xs: "column", sm: "row" },
+            width: { xs: "100%", sm: "auto" },
+          }}
+        >
           <Typography variant="body2" color="text.secondary">
             Rows per page:
           </Typography>
@@ -293,9 +315,15 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
           page={pagination.page}
           onChange={(_, page) => onPageChange(page)}
           color="primary"
-          showFirstButton
-          showLastButton
+          showFirstButton={!isMobile}
+          showLastButton={!isMobile}
           disabled={loading}
+          size={isMobile ? "small" : "medium"}
+          sx={{
+            "& .MuiPaginationItem-root": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Box>
     </Box>
