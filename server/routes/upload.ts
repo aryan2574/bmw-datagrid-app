@@ -1,5 +1,5 @@
 import express, { Request } from "express";
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
 import csv from "csv-parser";
 import fs from "fs";
 import Vehicle from "../models/Vehicle";
@@ -20,8 +20,33 @@ const safeParseFloat = (value: string, defaultValue: number): number => {
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
-// Configure multer for file uploads
-const upload = multer({ dest: "temp/" });
+// Configure multer for file uploads with security measures
+const upload = multer({
+  dest: "temp/",
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 1, // Only allow 1 file
+  },
+  fileFilter: (req, file, cb: FileFilterCallback) => {
+    // Check file type
+    if (file.mimetype !== "text/csv" && !file.originalname.endsWith(".csv")) {
+      return cb(new Error("Only CSV files are allowed"));
+    }
+
+    // Check file extension
+    const allowedExtensions = [".csv"];
+    const fileExtension = file.originalname
+      .toLowerCase()
+      .substring(file.originalname.lastIndexOf("."));
+    if (!allowedExtensions.includes(fileExtension)) {
+      return cb(
+        new Error("Invalid file extension. Only .csv files are allowed")
+      );
+    }
+
+    cb(null, true);
+  },
+});
 
 const router = express.Router();
 
@@ -77,6 +102,21 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
     if (!req.file) {
       console.log("❌ No file uploaded");
       return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Additional file validation
+    if (!req.file.originalname.toLowerCase().endsWith(".csv")) {
+      console.log("❌ Invalid file type");
+      return res.status(400).json({ error: "Only CSV files are allowed" });
+    }
+
+    // Check file size (additional validation)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (req.file.size > maxSize) {
+      console.log("❌ File too large");
+      return res
+        .status(400)
+        .json({ error: "File too large. Maximum file size is 10MB." });
     }
 
     console.log(`📄 File uploaded: ${req.file.originalname}`);
