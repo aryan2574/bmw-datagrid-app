@@ -4,6 +4,7 @@ import csv from "csv-parser";
 import fs from "fs";
 import Vehicle from "../models/Vehicle";
 import sequelize from "../models/index";
+import { VehicleCsvRow } from "../models/Vehicle";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -20,7 +21,28 @@ const safeParseFloat = (value: string, defaultValue: number): number => {
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
-// Configure multer for file uploads with security measures
+// Helper function to parse CSV row into Vehicle data
+const parseVehicleFromCsv = (row: VehicleCsvRow) => ({
+  brand: row.Brand || row.brand || "",
+  model: row.Model || row.model || "",
+  accelSec: safeParseFloat(row.AccelSec || row.accelSec || "0", 0),
+  topSpeedKm: safeParseInt(row.TopSpeed_Km || row.topSpeedKm || "0", 0),
+  rangeKm: safeParseInt(row.Range_Km || row.rangeKm || "0", 0),
+  efficiencyKwh100km: safeParseInt(
+    row["Efficiency_Kwh/100km"] || row.efficiencyKwh100km || "0",
+    0
+  ),
+  fastChargKmh: safeParseInt(row.FastCharg_Km_h || row.fastChargKmh || "0", 0),
+  rapidChar: row.RapidChar || row.rapidChar || "No",
+  powerTrain: row.PowerTrain || row.powerTrain || "",
+  plugType: row.PlugType || row.plugType || "",
+  bodyStyle: row.BodyStyle || row.bodyStyle || "",
+  segment: row.Segment || row.segment || "",
+  seats: safeParseInt(row.Seats || row.seats || "5", 5),
+  priceEuro: safeParseInt(row.PriceEuro || row.priceEuro || "0", 0),
+  date: row.Date || row.date || "",
+});
+
 const upload = multer({
   dest: "temp/",
   limits: {
@@ -121,12 +143,12 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
 
     console.log(`📄 File uploaded: ${req.file.originalname}`);
 
-    const results: any[] = [];
+    const results: VehicleCsvRow[] = [];
     const filePath = req.file.path;
 
     fs.createReadStream(filePath)
       .pipe(csv())
-      .on("data", (data: any) => {
+      .on("data", (data: VehicleCsvRow) => {
         console.log("📊 Processing row:", data);
         results.push(data);
       })
@@ -145,32 +167,9 @@ router.post("/csv", upload.single("csv"), async (req: MulterRequest, res) => {
           console.log(`📈 Total rows to process: ${results.length}`);
 
           // Parse and validate data before any database operations
-          const vehicles = results.map((row) => ({
-            brand: row.Brand || row.brand || "",
-            model: row.Model || row.model || "",
-            accelSec: safeParseFloat(row.AccelSec || row.accelSec || "0", 0),
-            topSpeedKm: safeParseInt(
-              row.TopSpeed_Km || row.topSpeedKm || "0",
-              0
-            ),
-            rangeKm: safeParseInt(row.Range_Km || row.rangeKm || "0", 0),
-            efficiencyKwh100km: safeParseInt(
-              row["Efficiency_Kwh/100km"] || row.efficiencyKwh100km || "0",
-              0
-            ),
-            fastChargKmh: safeParseInt(
-              row.FastCharg_Km_h || row.fastChargKmh || "0",
-              0
-            ),
-            rapidChar: row.RapidChar || row.rapidChar || "No",
-            powerTrain: row.PowerTrain || row.powerTrain || "",
-            plugType: row.PlugType || row.plugType || "",
-            bodyStyle: row.BodyStyle || row.bodyStyle || "",
-            segment: row.Segment || row.segment || "",
-            seats: safeParseInt(row.Seats || row.seats || "5", 5),
-            priceEuro: safeParseInt(row.PriceEuro || row.priceEuro || "0", 0),
-            date: row.Date || row.date || "",
-          }));
+          const vehicles = results.map((row: VehicleCsvRow) =>
+            parseVehicleFromCsv(row)
+          );
 
           // Validate that we have valid data
           if (vehicles.length === 0) {
