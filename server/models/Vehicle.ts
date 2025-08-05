@@ -1,6 +1,39 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "./index";
 
+export interface VehicleCsvRow {
+  Brand?: string;
+  brand?: string;
+  Model?: string;
+  model?: string;
+  AccelSec?: string;
+  accelSec?: string;
+  TopSpeed_Km?: string;
+  topSpeedKm?: string;
+  Range_Km?: string;
+  rangeKm?: string;
+  "Efficiency_Kwh/100km"?: string;
+  efficiencyKwh100km?: string;
+  FastCharg_Km_h?: string;
+  fastChargKmh?: string;
+  RapidChar?: string;
+  rapidChar?: string;
+  PowerTrain?: string;
+  powerTrain?: string;
+  PlugType?: string;
+  plugType?: string;
+  BodyStyle?: string;
+  bodyStyle?: string;
+  Segment?: string;
+  segment?: string;
+  Seats?: string;
+  seats?: string;
+  PriceEuro?: string;
+  priceEuro?: string;
+  Date?: string;
+  date?: string;
+}
+
 interface VehicleAttributes {
   id: number;
   brand: string;

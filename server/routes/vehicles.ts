@@ -1,5 +1,5 @@
 import express from "express";
-import { Op, WhereOptions } from "sequelize";
+import { Op } from "sequelize";
 import Vehicle from "../models/Vehicle";
 
 const router = express.Router();

@@ -45,7 +45,8 @@ const DataGrid: React.FC = () => {
    * @param vehicleId - The ID of the vehicle to delete
    */
   const handleDeleteVehicle = async (vehicleId: number) => {
-    await fetchVehicles();
+    // Refresh the data grid to show the latest data after deletion
+    await fetchVehicles(pagination.page, pagination.pageSize);
   };
 
   /**
